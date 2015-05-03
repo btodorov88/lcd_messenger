@@ -34,9 +34,6 @@
 
     <section>
         <ul>
-          <li>Message 1</li>
-          <li>Message 2</li>
-          <li>Message 3</li>
           <li ng-repeat="x in messages track by $index">
             {{ x }}
         </li>
@@ -52,13 +49,16 @@
 
     <script>
       angular.module('formExample', [])
-        .controller('ExampleController', ['$scope', function($scope) {
+        .controller('ExampleController', ['$scope', '$http', function($scope, $http) {
           $scope.messages = [];
 
           $scope.sendMsg = function() {
-            if( $scope.message ) {
-                $scope.messages.push($scope.message);
+            message = $scope.message;
+            if( message ) {
+                $scope.messages.push(message);
                 $scope.message = ''
+                
+                $http.post('/sendMsg', {msg:message})
             }
           };
         }]);

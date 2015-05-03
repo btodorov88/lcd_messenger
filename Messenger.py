@@ -11,7 +11,7 @@ def init():
     msg_queue = Manager().Queue()
     msg_pool.apply_async(Ext.printMsg, [msg_queue]) 
 
-def send_message(msg): 
+def message(msg): 
     light_pool.apply_async(Ext.light, [9]) 
     beeper_pool.apply_async(Ext.beep, []) 
     msg_queue.put(msg);
@@ -20,6 +20,6 @@ if __name__ == '__main__':
     messages = ["Hi!", "Kak si?", "Kakvo shte kaje6? ", "Chao!"]
     init()
     for x in messages:
-        send_message(x)
+        message(x)
         time.sleep(10)
     

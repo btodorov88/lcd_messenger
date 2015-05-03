@@ -3,6 +3,7 @@ from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from os import curdir, sep
 import json
 import datetime
+import Messenger as messenger
 
 PORT_NUMBER = 8080
 
@@ -47,27 +48,41 @@ class myHandler(BaseHTTPRequestHandler):
             self.send_error(404,'File Not Found: %s' % self.path)
             
     def sendMsg(self):
-        data = {}
-        data['time'] = str(datetime.datetime.now())
-        data['msg'] = 'Some message'
-        json_data = json.dumps(data)
+        message = self.extractJson()
+        print("Message: " + str(message) + " @ " + str(datetime.datetime.now()))
         
+        messenger.message(message['msg'])
+        
+        data = {}
+        data['success'] = True
+        response = json.dumps(data)
         
         self.send_response(200)
         self.send_header('Content-type',"application/json")
         self.end_headers()
-        self.wfile.write(json_data)
+        self.wfile.write(response)
+    
+    def extractJson(self): 
+        request = self.rfile.read(int(self.headers['Content-Length']))
+        return json.loads(request)
         
     #Handler for the GET requests
     def do_GET(self):
-        if self.path == "/sendMsg":
-            self.sendMsg()
-        elif self.path=="/":
+        if self.path=="/":
             self.path="/static/index.html"
             self.serve_file()
-
-
+        else:
+            print("No GET handler found for: " + self.path)
+            
+    #Handler for the POST requests        
+    def do_POST(self):
+        if self.path == "/sendMsg":
+            self.sendMsg()
+        else:
+            print("No POST handler found for: " + self.path)
 try:
+    #init the messenger
+    messenger.init()
     #Create a web server and define the handler to manage the
     #incoming request
     server = HTTPServer(('', PORT_NUMBER), myHandler)
